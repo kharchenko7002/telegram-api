@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { hentOppsummering } from "@/lib/db";
+import { hentOppsummering } from "app/lib/db";
 
 export const runtime = "nodejs";
 
