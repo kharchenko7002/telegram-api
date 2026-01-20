@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { botSvar } from "@/lib/bot";
+import { botSvar } from "app/lib/bot";
 
 export const runtime = "nodejs";
 
