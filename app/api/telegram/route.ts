@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { botSvar } from "@/lib/bot";
 
 export const runtime = "nodejs";
 
@@ -11,7 +12,7 @@ type TgUpdate = {
 
 async function sendMessage(chatId: number, text: string) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
-  if (!token) throw new Error("Missing TELEGRAM_BOT_TOKEN");
+  if (!token) throw new Error("TELEGRAM_BOT_TOKEN mangler");
 
   await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
@@ -23,7 +24,7 @@ async function sendMessage(chatId: number, text: string) {
 export async function POST(req: Request) {
   const secretHeader = req.headers.get("x-telegram-bot-api-secret-token");
   if (secretHeader !== process.env.TELEGRAM_WEBHOOK_SECRET) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+    return NextResponse.json({ ok: false }, { status: 401 });
   }
 
   const update = (await req.json()) as TgUpdate;
@@ -32,18 +33,13 @@ export async function POST(req: Request) {
   const text = update.message?.text;
 
   if (chatId && text) {
-    if (text === "/start") {
-      await sendMessage(chatId, "Hei! Jeg er BudsjettHjelper 🙂 Skriv noe!");
-    } else if (text === "/id") {
-      await sendMessage(chatId, `Din chatId: ${chatId}`);
-    } else {
-      await sendMessage(chatId, `Du skrev: ${text}`);
-    }
+    const svar = botSvar(text);
+    await sendMessage(chatId, svar);
   }
 
   return NextResponse.json({ ok: true });
 }
 
 export async function GET() {
-  return NextResponse.json({ ok: true, hint: "Use POST from Telegram webhook" });
+  return NextResponse.json({ ok: true });
 }
